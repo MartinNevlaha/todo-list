@@ -14,13 +14,15 @@ import { User } from 'src/user/user.entity';
 import { AuthGuard } from '@nestjs/passport';
 import { Task } from './taks.entity';
 import { UpdateTaskStatusDto } from './dto/updateTaskStatus.dto';
+import { PermissionGuard } from 'src/guard/permission.guard';
 
 @Controller('tasks')
+@UseGuards(AuthGuard())
 export class TaskController {
   constructor(private taskService: TaskService) {}
 
   @Post('/todo/:todoId')
-  @UseGuards(AuthGuard())
+  @UseGuards(PermissionGuard)
   createTask(
     @Param('todoId', new ParseUUIDPipe({ version: '4' })) todoId: string,
     @Body() createTaskDto: CreateTaskDto,
@@ -29,12 +31,14 @@ export class TaskController {
     return this.taskService.createTask(todoId, createTaskDto, user);
   }
 
-  @Patch('/:id/status')
-  @UseGuards(AuthGuard())
+  @Patch('/:id/todo-list/:todoId/status')
+  @UseGuards(PermissionGuard)
   updateTaskStatus(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
-    @Body() updateTaskStatusDto: UpdateTaskStatusDto,
+    @Param('todoId', new ParseUUIDPipe({ version: '4' })) todoId: string,
+    @Body()
+    updateTaskStatusDto: UpdateTaskStatusDto,
   ): Promise<Task> {
-    return this.taskService.updateTaskStatus(id, updateTaskStatusDto);
+    return this.taskService.updateTaskStatus(id, updateTaskStatusDto, todoId);
   }
 }

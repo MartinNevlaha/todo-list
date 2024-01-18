@@ -47,6 +47,7 @@ export class TodoListService {
       where: { id: id },
       relations: ['users'],
     });
+
     const user = await this.userService.findById(userId);
 
     if (!todo) {

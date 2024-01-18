@@ -67,6 +67,7 @@ export class TodoListController {
       true,
     );
   }
+
   @Delete('/:id')
   @UseGuards(AuthGuard())
   deleteTodoList(

@@ -44,9 +44,14 @@ export class TaskService {
   async updateTaskStatus(
     id: string,
     updateTaskStatusDto: UpdateTaskStatusDto,
+    todoId: string,
   ): Promise<Task> {
     const { status } = updateTaskStatusDto;
     const task = await this.getTaskById(id);
+    const todo = await this.todoListService.getTodoListById(todoId);
+    if (!task || !todo) {
+      throw new NotFoundException();
+    }
     task.status = status;
     return await this.taskRepository.save(task);
   }
