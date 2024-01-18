@@ -17,7 +17,9 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async registerUser(authCredentials: AuthCredentialsDto): Promise<void> {
+  async registerUser(
+    authCredentials: AuthCredentialsDto,
+  ): Promise<{ message: string }> {
     const { passwordConfirm, ...data } = authCredentials;
 
     if (data.password !== passwordConfirm) {
@@ -35,7 +37,7 @@ export class AuthService {
     const user = await this.userService.findByEmail(email);
 
     if (user && (await bcrypt.compare(password, user.password))) {
-      const payload: JwtPayload = { email };
+      const payload: JwtPayload = { id: user.id };
       const token = await this.jwtService.sign(payload);
       return { token };
     } else {

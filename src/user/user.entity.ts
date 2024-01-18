@@ -4,24 +4,31 @@ import {
   BeforeUpdate,
   Column,
   Entity,
-  ObjectIdColumn,
+  JoinTable,
+  ManyToMany,
+  PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Exclude } from 'class-transformer';
+import { TodoList } from 'src/todo-list/todo-list.entity';
 
 @Entity()
 @Unique(['email'])
 export class User extends BaseEntity {
-  @ObjectIdColumn()
-  _id: string;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-  @Column()
+  @Column({ unique: true })
   email: string;
 
-  @Exclude()
-  @Column({ select: false })
+  @Exclude({ toPlainOnly: true })
+  @Column()
   password: string;
+
+  @ManyToMany(() => TodoList, (todoList) => todoList.users)
+  @JoinTable()
+  todoLists: TodoList[];
 
   @BeforeInsert()
   @BeforeUpdate()

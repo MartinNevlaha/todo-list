@@ -8,11 +8,14 @@ services:
       - .:/app
 
   db:
-    image: mongo
-    restart: always
+    image: postgres
     hostname: db-service
-    command: mongod --port 3006
+    restart: on-failure
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ambassador
     volumes:
-      - ./mongo_data:/data/db
-    ports: 
-      - 3006:3006
+      - ./postgres-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
