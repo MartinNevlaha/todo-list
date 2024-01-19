@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TodoList } from './todo-list.entity';
 import { Repository } from 'typeorm';
@@ -6,6 +10,7 @@ import { TodoListDto } from './dto/createTodoList.dto';
 import { User } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
 import { AddUserToTodoDto } from './dto/addUserToTodo.dto';
+import { AssignOrUnassignRes } from './interface/assignOrUnassign.interface';
 
 @Injectable()
 export class TodoListService {
@@ -37,11 +42,11 @@ export class TodoListService {
     return todo;
   }
 
-  async assignUserToTodoList(
+  async assignOrUnassingUser(
     id: string,
     addUserToTodoDto: AddUserToTodoDto,
     remove: boolean = false,
-  ): Promise<TodoList> {
+  ): Promise<AssignOrUnassignRes> {
     const { userId } = addUserToTodoDto;
     const todo = await this.todoListRepository.findOne({
       where: { id: id },
@@ -61,7 +66,16 @@ export class TodoListService {
     } else {
       todo.users = [...todo.users, user];
     }
-    return await this.todoListRepository.save(todo);
+    try {
+      await this.todoListRepository.save(todo);
+      return {
+        message: 'success',
+        userId: user.id,
+        todoId: todo.id,
+      };
+    } catch (error) {
+      throw new InternalServerErrorException();
+    }
   }
 
   async updateTodoList(

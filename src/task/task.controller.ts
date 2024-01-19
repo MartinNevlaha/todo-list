@@ -17,12 +17,11 @@ import { UpdateTaskStatusDto } from './dto/updateTaskStatus.dto';
 import { PermissionGuard } from 'src/guard/permission.guard';
 
 @Controller('tasks')
-@UseGuards(AuthGuard())
+@UseGuards(AuthGuard(), PermissionGuard)
 export class TaskController {
   constructor(private taskService: TaskService) {}
 
   @Post('/todo/:todoId')
-  @UseGuards(PermissionGuard)
   createTask(
     @Param('todoId', new ParseUUIDPipe({ version: '4' })) todoId: string,
     @Body() createTaskDto: CreateTaskDto,
@@ -32,7 +31,6 @@ export class TaskController {
   }
 
   @Patch('/:id/todo-list/:todoId/status')
-  @UseGuards(PermissionGuard)
   updateTaskStatus(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Param('todoId', new ParseUUIDPipe({ version: '4' })) todoId: string,

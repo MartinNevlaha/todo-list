@@ -5,26 +5,31 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Observable } from 'rxjs';
+import { plainToClass } from 'class-transformer';
+import { ParamsDto } from './dto/params.dto';
+import { validate } from 'class-validator';
 
 @Injectable()
 export class PermissionGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
     const { user } = req;
-    const todoId: string = req.params.todoId;
     let permittedTodoList: string[] = [];
+    const params = plainToClass(ParamsDto, req.params);
+    const errors = await validate(params);
 
-    if (typeof todoId !== 'string') {
-      throw new BadRequestException();
+    const errorMsg = errors.flatMap(({ constraints }) =>
+      Object.values(constraints),
+    );
+
+    if (errorMsg.length > 0) {
+      throw new BadRequestException(errorMsg);
     }
     if (user && user.todoLists) {
       permittedTodoList = user.todoLists.map((todo) => todo.id);
     }
 
-    return permittedTodoList.includes(todoId);
+    return permittedTodoList.includes(req.params.todoId);
   }
 }

@@ -16,6 +16,8 @@ import { User } from 'src/user/user.entity';
 import { GetUser } from 'src/user/get-user.decorator';
 import { TodoList } from './todo-list.entity';
 import { AddUserToTodoDto } from './dto/addUserToTodo.dto';
+import { AssignOrUnassignRes } from './interface/assignOrUnassign.interface';
+import { PermissionGuard } from 'src/guard/permission.guard';
 
 @Controller('todo-lists')
 export class TodoListController {
@@ -30,49 +32,49 @@ export class TodoListController {
     return this.todolistService.createTodoList(createTodoListDto, user);
   }
 
-  @Get('/:id')
+  @Get('/:todoId')
   getTodoListById(
-    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Param('todoId', new ParseUUIDPipe({ version: '4' })) todoId: string,
   ): Promise<TodoList> {
-    return this.todolistService.getTodoListById(id);
+    return this.todolistService.getTodoListById(todoId);
   }
 
-  @Patch('/:id')
-  @UseGuards(AuthGuard())
+  @Patch('/:todoId')
+  @UseGuards(AuthGuard(), PermissionGuard)
   updateTodoList(
-    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Param('todoId', new ParseUUIDPipe({ version: '4' })) todoId: string,
     @Body() updateTodoListDto: TodoListDto,
   ): Promise<TodoList> {
-    return this.todolistService.updateTodoList(id, updateTodoListDto);
+    return this.todolistService.updateTodoList(todoId, updateTodoListDto);
   }
 
-  @Patch('/:id/assign-user')
+  @Patch('/:todoId/assign-user')
   @UseGuards(AuthGuard())
   assignUserToTodoList(
-    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Param('todoId', new ParseUUIDPipe({ version: '4' })) todoId: string,
     @Body() addUserToTodoDto: AddUserToTodoDto,
-  ): Promise<TodoList> {
-    return this.todolistService.assignUserToTodoList(id, addUserToTodoDto);
+  ): Promise<AssignOrUnassignRes> {
+    return this.todolistService.assignOrUnassingUser(todoId, addUserToTodoDto);
   }
 
-  @Patch('/:id/unassign-user')
+  @Patch('/:todoId/unassign-user')
   @UseGuards(AuthGuard())
   unassignUserToTodoList(
-    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Param('todoId', new ParseUUIDPipe({ version: '4' })) todoId: string,
     @Body() addUserToTodoDto: AddUserToTodoDto,
-  ): Promise<TodoList> {
-    return this.todolistService.assignUserToTodoList(
-      id,
+  ): Promise<AssignOrUnassignRes> {
+    return this.todolistService.assignOrUnassingUser(
+      todoId,
       addUserToTodoDto,
       true,
     );
   }
 
-  @Delete('/:id')
-  @UseGuards(AuthGuard())
+  @Delete('/:todoId')
+  @UseGuards(AuthGuard(), PermissionGuard)
   deleteTodoList(
-    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Param('todoId', new ParseUUIDPipe({ version: '4' })) todoId: string,
   ): Promise<{ message: string }> {
-    return this.todolistService.deleteTodoList(id);
+    return this.todolistService.deleteTodoList(todoId);
   }
 }

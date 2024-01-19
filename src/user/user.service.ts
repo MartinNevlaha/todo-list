@@ -14,14 +14,10 @@ export class UserService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async createUser(
-    email: string,
-    password: string,
-  ): Promise<{ message: string }> {
+  async createUser(email: string, password: string): Promise<User> {
     try {
       const user = this.userRepository.create({ email, password });
-      await this.userRepository.save(user);
-      return { message: 'success' };
+      return await this.userRepository.save(user);
     } catch (error) {
       if (error.code === '23505') {
         throw new ConflictException('Email is allready used');
@@ -37,6 +33,11 @@ export class UserService {
     return await this.userRepository.findOne({
       where: { id: id },
       relations: ['todoLists'],
+      select: {
+        todoLists: {
+          id: true,
+        },
+      },
     });
   }
 }

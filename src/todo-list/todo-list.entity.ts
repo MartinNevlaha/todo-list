@@ -24,6 +24,6 @@ export class TodoList {
   })
   users: User[];
 
-  @OneToMany(() => Task, (task) => task.todo, { eager: true })
+  @OneToMany(() => Task, (task) => task.todo)
   tasks: Task[];
 }

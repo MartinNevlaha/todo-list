@@ -22,6 +22,9 @@ export class Task {
   @Column()
   status: TaskStatus;
 
-  @ManyToOne(() => TodoList, (todo) => todo.tasks, { eager: false })
+  @ManyToOne(() => TodoList, (todo) => todo.tasks, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   todo: TodoList;
 }
