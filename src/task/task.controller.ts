@@ -15,12 +15,36 @@ import { AuthGuard } from '@nestjs/passport';
 import { Task } from './taks.entity';
 import { UpdateTaskStatusDto } from './dto/updateTaskStatus.dto';
 import { PermissionGuard } from 'src/guard/permission.guard';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiBody,
+  ApiCreatedResponse,
+  ApiInternalServerErrorResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 
+@ApiTags('Tasks routes')
 @Controller('tasks')
 @UseGuards(AuthGuard(), PermissionGuard)
 export class TaskController {
   constructor(private taskService: TaskService) {}
 
+  @ApiOperation({ summary: 'create task' })
+  @ApiCreatedResponse({ description: 'task created' })
+  @ApiBadRequestResponse({ description: 'Invalid input' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiInternalServerErrorResponse({
+    description: 'Internal server error',
+  })
+  @ApiBearerAuth('jwt-token')
+  @ApiBody({ type: CreateTaskDto })
+  @ApiParam({ name: 'todoId', description: 'Id of todo list' })
   @Post('/todo/:todoId')
   createTask(
     @Param('todoId', new ParseUUIDPipe({ version: '4' })) todoId: string,
@@ -30,6 +54,17 @@ export class TaskController {
     return this.taskService.createTask(todoId, createTaskDto, user);
   }
 
+  @ApiOperation({ summary: 'update task status' })
+  @ApiOkResponse({ description: 'Ok' })
+  @ApiBadRequestResponse({ description: 'Invalid input' })
+  @ApiNotFoundResponse({ description: 'Task or todo list not found' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiInternalServerErrorResponse({
+    description: 'Internal server error',
+  })
+  @ApiBearerAuth('jwt-token')
+  @ApiParam({ name: 'todoId', description: 'Id of todo list' })
+  @ApiBody({ type: UpdateTaskStatusDto })
   @Patch('/:id/todo-list/:todoId/status')
   updateTaskStatus(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,

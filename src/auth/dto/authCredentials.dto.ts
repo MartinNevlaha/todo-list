@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsNotEmpty,
@@ -10,6 +11,7 @@ import {
 export class AuthCredentialsDto {
   @IsNotEmpty()
   @IsEmail()
+  @ApiProperty({ type: String, description: 'email' })
   email: string;
 
   @IsString()
@@ -19,9 +21,17 @@ export class AuthCredentialsDto {
     message:
       'password is week, pasword must contains at least one capital letter and one number',
   })
+  @ApiProperty({
+    type: String,
+    description: 'Password',
+  })
   password: string;
 
   @IsNotEmpty()
   @IsString()
+  @ApiProperty({
+    type: String,
+    description: 'Confirmation password',
+  })
   passwordConfirm: string;
 }
