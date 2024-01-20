@@ -5,10 +5,11 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Put,
   UseGuards,
 } from '@nestjs/common';
 import { TaskService } from './task.service';
-import { CreateTaskDto } from './dto/createTask.dto';
+import { TaskDto } from './dto/Task.dto';
 import { GetUser } from 'src/user/get-user.decorator';
 import { User } from 'src/user/user.entity';
 import { AuthGuard } from '@nestjs/passport';
@@ -30,6 +31,13 @@ import {
 } from '@nestjs/swagger';
 
 @ApiTags('Tasks routes')
+@ApiInternalServerErrorResponse({
+  description: 'Internal server error',
+})
+@ApiBadRequestResponse({ description: 'Invalid input' })
+@ApiUnauthorizedResponse({ description: 'Unauthorized' })
+@ApiBearerAuth('jwt-token')
+@ApiParam({ name: 'todoId', description: 'Id of todo list' })
 @Controller('tasks')
 @UseGuards(AuthGuard(), PermissionGuard)
 export class TaskController {
@@ -37,18 +45,11 @@ export class TaskController {
 
   @ApiOperation({ summary: 'create task' })
   @ApiCreatedResponse({ description: 'task created' })
-  @ApiBadRequestResponse({ description: 'Invalid input' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  @ApiInternalServerErrorResponse({
-    description: 'Internal server error',
-  })
-  @ApiBearerAuth('jwt-token')
-  @ApiBody({ type: CreateTaskDto })
-  @ApiParam({ name: 'todoId', description: 'Id of todo list' })
+  @ApiBody({ type: TaskDto })
   @Post('/todo/:todoId')
   createTask(
     @Param('todoId', new ParseUUIDPipe({ version: '4' })) todoId: string,
-    @Body() createTaskDto: CreateTaskDto,
+    @Body() createTaskDto: TaskDto,
     @GetUser() user: User,
   ): Promise<Task> {
     return this.taskService.createTask(todoId, createTaskDto, user);
@@ -56,22 +57,29 @@ export class TaskController {
 
   @ApiOperation({ summary: 'update task status' })
   @ApiOkResponse({ description: 'Ok' })
-  @ApiBadRequestResponse({ description: 'Invalid input' })
   @ApiNotFoundResponse({ description: 'Task or todo list not found' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  @ApiInternalServerErrorResponse({
-    description: 'Internal server error',
-  })
-  @ApiBearerAuth('jwt-token')
-  @ApiParam({ name: 'todoId', description: 'Id of todo list' })
   @ApiBody({ type: UpdateTaskStatusDto })
+  @ApiParam({ name: 'id', description: 'task id' })
   @Patch('/:id/todo-list/:todoId/status')
   updateTaskStatus(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Param('todoId', new ParseUUIDPipe({ version: '4' })) todoId: string,
-    @Body()
-    updateTaskStatusDto: UpdateTaskStatusDto,
+    @Body() updateTaskStatusDto: UpdateTaskStatusDto,
   ): Promise<Task> {
     return this.taskService.updateTaskStatus(id, updateTaskStatusDto, todoId);
+  }
+
+  @ApiOperation({ summary: 'update task status' })
+  @ApiOkResponse({ description: 'Ok' })
+  @ApiNotFoundResponse({ description: 'Task or todo list not found' })
+  @ApiParam({ name: 'id', description: 'task id' })
+  @ApiBody({ type: TaskDto })
+  @Put('/:id/todo-list/:todoId')
+  updateTask(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Param('todoId', new ParseUUIDPipe({ version: '4' })) todoId: string,
+    @Body() updateTaskDto: TaskDto,
+  ): Promise<Task> {
+    return this.taskService.updateTask(id, todoId, updateTaskDto);
   }
 }

@@ -8,8 +8,6 @@ import { TodoList } from './todo-list.entity';
 import { Repository } from 'typeorm';
 import { TodoListDto } from './dto/createTodoList.dto';
 import { User } from 'src/user/user.entity';
-import { UserService } from 'src/user/user.service';
-import { AddUserToTodoDto } from './dto/addUserToTodo.dto';
 import { AssignOrUnassignRes } from './interface/assignOrUnassign.interface';
 
 @Injectable()
@@ -17,9 +15,22 @@ export class TodoListService {
   constructor(
     @InjectRepository(TodoList)
     private todoListRepository: Repository<TodoList>,
-    private userService: UserService,
   ) {}
 
+  async getAllTodoLists(user?: User): Promise<TodoList[]> {
+    let query: object = {};
+    if (user) {
+      query = {
+        relations: ['users'],
+        where: {
+          users: {
+            id: user.id,
+          },
+        },
+      };
+    }
+    return this.todoListRepository.find(query);
+  }
   async createTodoList(
     createTodoListDto: TodoListDto,
     user: User,
@@ -44,33 +55,30 @@ export class TodoListService {
 
   async assignOrUnassingUser(
     id: string,
-    addUserToTodoDto: AddUserToTodoDto,
+    loggedUser: User,
     remove: boolean = false,
   ): Promise<AssignOrUnassignRes> {
-    const { userId } = addUserToTodoDto;
     const todo = await this.todoListRepository.findOne({
       where: { id: id },
       relations: ['users'],
     });
 
-    const user = await this.userService.findById(userId);
-
     if (!todo) {
       throw new NotFoundException('Todo list not found');
     }
-    if (!user) {
+    if (!loggedUser) {
       throw new NotFoundException('User not found');
     }
     if (remove) {
-      todo.users = todo.users.filter((user) => user.id !== userId);
+      todo.users = todo.users.filter((user) => user.id !== loggedUser.id);
     } else {
-      todo.users = [...todo.users, user];
+      todo.users = [...todo.users, loggedUser];
     }
     try {
       await this.todoListRepository.save(todo);
       return {
         message: 'success',
-        userId: user.id,
+        userId: loggedUser.id,
         todoId: todo.id,
       };
     } catch (error) {

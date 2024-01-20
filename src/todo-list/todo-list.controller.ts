@@ -15,7 +15,6 @@ import { AuthGuard } from '@nestjs/passport';
 import { User } from 'src/user/user.entity';
 import { GetUser } from 'src/user/get-user.decorator';
 import { TodoList } from './todo-list.entity';
-import { AddUserToTodoDto } from './dto/addUserToTodo.dto';
 import { AssignOrUnassignRes } from './interface/assignOrUnassign.interface';
 import { PermissionGuard } from 'src/guard/permission.guard';
 import {
@@ -33,6 +32,9 @@ import {
 } from '@nestjs/swagger';
 
 @ApiTags('Todo lists routes')
+@ApiInternalServerErrorResponse({
+  description: 'Internal server error',
+})
 @Controller('todo-lists')
 export class TodoListController {
   constructor(private todolistService: TodoListService) {}
@@ -41,9 +43,6 @@ export class TodoListController {
   @ApiCreatedResponse({ description: 'Todo list created' })
   @ApiBadRequestResponse({ description: 'Invalid input' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  @ApiInternalServerErrorResponse({
-    description: 'Internal server error',
-  })
   @ApiBearerAuth('jwt-token')
   @ApiBody({ type: TodoListDto })
   @Post()
@@ -54,14 +53,28 @@ export class TodoListController {
   ): Promise<TodoList> {
     return this.todolistService.createTodoList(createTodoListDto, user);
   }
+  @ApiOperation({ summary: 'Get all todo lists' })
+  @ApiOkResponse({ description: 'Ok' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @Get()
+  getAllTodoLists(): Promise<TodoList[]> {
+    return this.todolistService.getAllTodoLists();
+  }
 
-  @ApiParam({ name: 'todoId', description: 'Id of todo list' })
+  @ApiOperation({ summary: 'Get all todo lists by user' })
+  @ApiOkResponse({ description: 'Ok' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiBearerAuth('jwt-token')
+  @Get('/user')
+  @UseGuards(AuthGuard())
+  getAllTodoListsByUser(@GetUser() user: User): Promise<TodoList[]> {
+    return this.todolistService.getAllTodoLists(user);
+  }
+
   @ApiOperation({ summary: 'Get toto list by id' })
   @ApiOkResponse({ description: 'Ok' })
   @ApiNotFoundResponse({ description: 'Todo list not found' })
-  @ApiInternalServerErrorResponse({
-    description: 'Internal server error',
-  })
+  @ApiParam({ name: 'todoId', description: 'Id of todo list' })
   @Get('/:todoId')
   getTodoListById(
     @Param('todoId', new ParseUUIDPipe({ version: '4' })) todoId: string,
@@ -69,16 +82,12 @@ export class TodoListController {
     return this.todolistService.getTodoListById(todoId);
   }
 
-  @ApiParam({ name: 'todoId', description: 'Id of todo list' })
   @ApiOperation({ summary: 'Update title of todo list' })
   @ApiOkResponse({ description: 'Ok' })
   @ApiNotFoundResponse({ description: 'Todo list not found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  @ApiInternalServerErrorResponse({
-    description: 'Internal server error',
-  })
-  @Patch('/:todoId')
   @ApiBearerAuth('jwt-token')
+  @Patch('/:todoId')
   @ApiBody({ type: TodoListDto })
   @UseGuards(AuthGuard(), PermissionGuard)
   updateTodoList(
@@ -92,50 +101,35 @@ export class TodoListController {
   @ApiOkResponse({ description: 'User was assigned to todo list' })
   @ApiNotFoundResponse({ description: 'Todo or user list not found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  @ApiInternalServerErrorResponse({
-    description: 'Internal server error',
-  })
   @ApiParam({ name: 'todoId', description: 'Id of todo list' })
   @ApiBearerAuth('jwt-token')
-  @ApiBody({ type: AddUserToTodoDto })
   @Patch('/:todoId/assign-user')
   @UseGuards(AuthGuard())
   assignUserToTodoList(
     @Param('todoId', new ParseUUIDPipe({ version: '4' })) todoId: string,
-    @Body() addUserToTodoDto: AddUserToTodoDto,
+    @GetUser() user: User,
   ): Promise<AssignOrUnassignRes> {
-    return this.todolistService.assignOrUnassingUser(todoId, addUserToTodoDto);
+    return this.todolistService.assignOrUnassingUser(todoId, user);
   }
 
   @ApiOperation({ summary: 'unassign user from todo list' })
   @ApiOkResponse({ description: 'User was unassigned from todo list' })
   @ApiNotFoundResponse({ description: 'Todo list or user not found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  @ApiInternalServerErrorResponse({
-    description: 'Internal server error',
-  })
   @ApiParam({ name: 'todoId', description: 'Id of todo list' })
   @ApiBearerAuth('jwt-token')
-  @ApiBody({ type: AddUserToTodoDto })
   @Patch('/:todoId/unassign-user')
   @UseGuards(AuthGuard())
   unassignUserToTodoList(
     @Param('todoId', new ParseUUIDPipe({ version: '4' })) todoId: string,
-    @Body() addUserToTodoDto: AddUserToTodoDto,
+    @GetUser() user: User,
   ): Promise<AssignOrUnassignRes> {
-    return this.todolistService.assignOrUnassingUser(
-      todoId,
-      addUserToTodoDto,
-      true,
-    );
+    return this.todolistService.assignOrUnassingUser(todoId, user, true);
   }
 
   @ApiOperation({ summary: 'Delete todo list by id' })
   @ApiOkResponse({ description: 'todo list deleted' })
   @ApiNotFoundResponse({ description: 'todo list not found' })
-  @ApiInternalServerErrorResponse({
-    description: 'Internal server error',
-  })
   @ApiParam({ name: 'todoId', description: 'Id of todo list' })
   @ApiBearerAuth('jwt-token')
   @Delete('/:todoId')

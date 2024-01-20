@@ -6,7 +6,7 @@ import {
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateTaskDto {
+export class TaskDto {
   @IsNotEmpty()
   @IsString()
   @ApiProperty({ type: String, description: 'Task title' })
@@ -18,6 +18,6 @@ export class CreateTaskDto {
   text: string;
 
   @IsDateString()
-  @ApiProperty({ type: String, description: 'deadline date' })
-  deadline: string;
+  @ApiProperty({ type: Date, description: 'deadline date' })
+  deadline: Date;
 }
