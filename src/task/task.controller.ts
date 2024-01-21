@@ -69,7 +69,7 @@ export class TaskController {
     return this.taskService.updateTaskStatus(id, updateTaskStatusDto, todoId);
   }
 
-  @ApiOperation({ summary: 'update task status' })
+  @ApiOperation({ summary: 'update task' })
   @ApiOkResponse({ description: 'Ok' })
   @ApiNotFoundResponse({ description: 'Task or todo list not found' })
   @ApiParam({ name: 'id', description: 'task id' })
