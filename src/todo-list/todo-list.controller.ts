@@ -82,7 +82,9 @@ export class TodoListController {
     return this.todolistService.getTodoListById(todoId);
   }
 
-  @ApiOperation({ summary: 'Update title of todo list' })
+  @ApiOperation({
+    summary: 'Update title of todo list, protected by permission guard',
+  })
   @ApiOkResponse({ description: 'Ok' })
   @ApiNotFoundResponse({ description: 'Todo list not found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
@@ -127,7 +129,9 @@ export class TodoListController {
     return this.todolistService.assignOrUnassingUser(todoId, user, true);
   }
 
-  @ApiOperation({ summary: 'Delete todo list by id' })
+  @ApiOperation({
+    summary: 'Delete todo list by id, protected by permission guard',
+  })
   @ApiOkResponse({ description: 'todo list deleted' })
   @ApiNotFoundResponse({ description: 'todo list not found' })
   @ApiParam({ name: 'todoId', description: 'Id of todo list' })

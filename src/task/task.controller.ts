@@ -44,7 +44,7 @@ import {
 export class TaskController {
   constructor(private taskService: TaskService) {}
 
-  @ApiOperation({ summary: 'create task' })
+  @ApiOperation({ summary: 'create task, protected by permission guard' })
   @ApiCreatedResponse({ description: 'task created' })
   @ApiBody({ type: TaskDto })
   @Post('/todo/:todoId')
@@ -56,7 +56,9 @@ export class TaskController {
     return this.taskService.createTask(todoId, createTaskDto, user);
   }
 
-  @ApiOperation({ summary: 'update task status' })
+  @ApiOperation({
+    summary: 'update task status, protected by permission guard',
+  })
   @ApiOkResponse({ description: 'Ok' })
   @ApiNotFoundResponse({ description: 'Task or todo list not found' })
   @ApiBody({ type: UpdateTaskStatusDto })
@@ -70,7 +72,7 @@ export class TaskController {
     return this.taskService.updateTaskStatus(id, updateTaskStatusDto, todoId);
   }
 
-  @ApiOperation({ summary: 'update task' })
+  @ApiOperation({ summary: 'update task, protected by permission guard' })
   @ApiOkResponse({ description: 'Ok' })
   @ApiNotFoundResponse({ description: 'Task or todo list not found' })
   @ApiParam({ name: 'id', description: 'task id' })
@@ -84,7 +86,7 @@ export class TaskController {
     return this.taskService.updateTask(id, todoId, updateTaskDto);
   }
 
-  @ApiOperation({ summary: 'delete task' })
+  @ApiOperation({ summary: 'delete task, protected by permission guard' })
   @ApiOkResponse({ description: 'Ok' })
   @ApiNotFoundResponse({ description: 'Task not found' })
   @ApiParam({ name: 'id', description: 'task id' })
