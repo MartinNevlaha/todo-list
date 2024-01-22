@@ -21,7 +21,7 @@ export class TodoListService {
     let query: object = {};
     if (user) {
       query = {
-        relations: ['users'],
+        relations: ['users', 'tasks'],
         where: {
           users: {
             id: user.id,
