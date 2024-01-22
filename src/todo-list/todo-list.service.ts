@@ -63,13 +63,15 @@ export class TodoListService {
       relations: ['users'],
     });
 
-    if (!todo) {
-      throw new NotFoundException('Todo list not found');
+    if (!todo || !loggedUser) {
+      throw new NotFoundException();
     }
-    if (!loggedUser) {
-      throw new NotFoundException('User not found');
-    }
+
     if (remove) {
+      const result = todo.users.find((user) => user.id === loggedUser.id);
+
+      if (!result) throw new NotFoundException('User was not assigned');
+
       todo.users = todo.users.filter((user) => user.id !== loggedUser.id);
     } else {
       todo.users = [...todo.users, loggedUser];

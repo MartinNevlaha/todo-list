@@ -22,6 +22,7 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
+  ApiForbiddenResponse,
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -37,6 +38,7 @@ import {
 })
 @ApiBadRequestResponse({ description: 'Invalid input' })
 @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+@ApiForbiddenResponse({ description: 'Forbidden' })
 @ApiBearerAuth('jwt-token')
 @ApiParam({ name: 'todoId', description: 'Id of todo list' })
 @Controller('tasks')

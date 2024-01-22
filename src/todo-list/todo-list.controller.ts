@@ -22,6 +22,7 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
+  ApiForbiddenResponse,
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -88,6 +89,7 @@ export class TodoListController {
   @ApiOkResponse({ description: 'Ok' })
   @ApiNotFoundResponse({ description: 'Todo list not found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
   @ApiBearerAuth('jwt-token')
   @Patch('/:todoId')
   @ApiBody({ type: TodoListDto })
@@ -134,6 +136,8 @@ export class TodoListController {
   })
   @ApiOkResponse({ description: 'todo list deleted' })
   @ApiNotFoundResponse({ description: 'todo list not found' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
   @ApiParam({ name: 'todoId', description: 'Id of todo list' })
   @ApiBearerAuth('jwt-token')
   @Delete('/:todoId')
