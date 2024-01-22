@@ -5,7 +5,7 @@
 
 ## Description
 
-Todo App is based on [Nest](https://nestjs.com/) and [PostgresSQL](https://www.postgresql.org/) database. Boot services (APP and DB) is dockerized. App is based on JWT token authentication.
+Todo App is based on [Nest](https://nestjs.com/) and [PostgresSQL](https://www.postgresql.org/) database. Booth services (APP and DB) is dockerized. App is based on JWT token authentication.
 
 To run this application you must have [nodejs](https://nodejs.org/en) and [docker](https://www.docker.com/) installed on your pc.
 
