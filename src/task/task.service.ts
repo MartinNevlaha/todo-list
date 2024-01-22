@@ -56,7 +56,11 @@ export class TaskService {
     return await this.taskRepository.save(task);
   }
 
-  async updateTask(id: string, todoId: string, updateTaskDto: TaskDto) {
+  async updateTask(
+    id: string,
+    todoId: string,
+    updateTaskDto: TaskDto,
+  ): Promise<Task> {
     const task = await this.getTaskById(id);
     const todo = await this.todoListService.getTodoListById(todoId);
     if (!task || !todo) {
@@ -67,5 +71,22 @@ export class TaskService {
     task.title = updateTaskDto.title;
     task.deadline = updateTaskDto.deadline;
     return await this.taskRepository.save(task);
+  }
+
+  async deleteTask(
+    id: string,
+    todoId: string,
+  ): Promise<{ message: 'success' }> {
+    const todo = await this.todoListService.getTodoListById(todoId);
+
+    if (!todo) throw new NotFoundException();
+
+    const result = await this.taskRepository.delete({ id });
+    if (result.affected === 0) {
+      throw new NotFoundException();
+    }
+    return {
+      message: 'success',
+    };
   }
 }

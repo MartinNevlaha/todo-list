@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -81,5 +82,17 @@ export class TaskController {
     @Body() updateTaskDto: TaskDto,
   ): Promise<Task> {
     return this.taskService.updateTask(id, todoId, updateTaskDto);
+  }
+
+  @ApiOperation({ summary: 'delete task' })
+  @ApiOkResponse({ description: 'Ok' })
+  @ApiNotFoundResponse({ description: 'Task not found' })
+  @ApiParam({ name: 'id', description: 'task id' })
+  @Delete('/:id/todo-list/:todoId')
+  deleteTask(
+    @Param('todoId') todoId: string,
+    @Param('id') id: string,
+  ): Promise<{ message: string }> {
+    return this.taskService.deleteTask(id, todoId);
   }
 }
